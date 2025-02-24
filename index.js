@@ -10,18 +10,34 @@ let persons = [
     { id: 4, name: "Mary Poppendieck", number: "39-23-6423122" }
 ];
 
+app.get('/api/persons', (req, res) => {
+    res.json(persons);
+});
+
+app.get('/api/persons/:id', (req, res) => {
+    const person = persons.find(p => p.id === Number(req.params.id));
+    person ? res.json(person) : res.status(404).json({ error: "Person not found" });
+});
+
+app.post('/api/persons', (req, res) => {
+    const { name, number } = req.body;
+
+    const newPerson = {
+        id: Math.floor(Math.random() * 1000000),
+        name,
+        number
+    };
+
+    persons.push(newPerson);
+    res.status(201).json(newPerson);
+});
 
 app.delete('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id);
     const initialLength = persons.length;
-    
     persons = persons.filter(person => person.id !== id);
 
-    if (persons.length < initialLength) {
-        res.status(204).end(); 
-    } else {
-        res.status(404).json({ error: "Person not found" });
-    }
+    persons.length < initialLength ? res.status(204).end() : res.status(404).json({ error: "Person not found" });
 });
 
 const PORT = 3001;

@@ -1,10 +1,13 @@
 const express = require('express');
 const morgan = require('morgan');
+const cors = require('cors');
+
 const app = express();
 
 app.use(express.json());
+app.use(cors()); 
 
-morgan.token('body', (req) => JSON.stringify(req.body));
+morgan.token('body', (req) => req.method === 'POST' ? JSON.stringify(req.body) : '');
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
 
@@ -17,6 +20,11 @@ let persons = [
 
 app.get('/api/persons', (req, res) => {
     res.json(persons);
+});
+
+app.get('/info', (req, res) => {
+    const currentTime = new Date();
+    res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${currentTime}</p>`);
 });
 
 app.get('/api/persons/:id', (req, res) => {

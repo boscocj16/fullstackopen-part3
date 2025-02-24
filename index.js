@@ -18,6 +18,10 @@ let persons = [
     { id: 4, name: "Mary Poppendieck", number: "39-23-6423122" }
 ];
 
+app.get("/", (req, res) => {
+    res.send("Server is running on Render!");
+  });
+  
 app.get('/api/persons', (req, res) => {
     res.json(persons);
 });
@@ -61,7 +65,7 @@ app.delete('/api/persons/:id', (req, res) => {
     persons.length < initialLength ? res.status(204).end() : res.status(404).json({ error: "Person not found" });
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });

@@ -1,8 +1,11 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
-
+const path = require('path'); 
 const app = express();
+
+app.use(express.json());
+app.use(cors());
 
 app.use(express.json());
 app.use(cors()); 
@@ -10,7 +13,7 @@ app.use(cors());
 morgan.token('body', (req) => req.method === 'POST' ? JSON.stringify(req.body) : '');
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
-
+app.use(express.static('build'));
 let persons = [
     { id: 1, name: "Arto Hellas", number: "040-123456" },
     { id: 2, name: "Ada Lovelace", number: "39-44-5323523" },
@@ -31,6 +34,10 @@ app.get('/info', (req, res) => {
     res.send(`<p>Phonebook has info for ${persons.length} people</p><p>${currentTime}</p>`);
 });
 
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve('build', 'index.html'));
+  });
+  
 app.get('/api/persons/:id', (req, res) => {
     const person = persons.find(p => p.id === Number(req.params.id));
     person ? res.json(person) : res.status(404).json({ error: "Person not found" });

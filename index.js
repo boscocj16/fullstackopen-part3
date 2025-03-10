@@ -80,7 +80,7 @@ app.use(
 // };
 
 // // creating a new entry from the user
-app.post('/api/persons', async (req, res) => {
+app.post('/api/persons', async (req, res, next) => {
   const { name, number } = req.body;
 
   if (!name || !number) {
@@ -93,11 +93,11 @@ app.post('/api/persons', async (req, res) => {
     const savedPerson = await person.save();
     res.status(201).json(savedPerson);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to save to database' });
+    next(error)
   }
 });
 
-app.delete("/api/persons/:id", async (req, res) => {
+app.delete("/api/persons/:id", async (req, res, next) => {
   try {
     const deletedPerson = await Person.findByIdAndDelete(req.params.id);
 
@@ -107,10 +107,25 @@ app.delete("/api/persons/:id", async (req, res) => {
 
     res.status(204).end(); // No Content response
   } catch (error) {
-    res.status(400).json({ error: "Invalid ID format" });
+    next(error)
   }
 });
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  }  res.status(400).json({ error: "Invalid ID format" });
+  // res.status(500).json({ error: 'Failed to save to database'
+  //   return res.status(400).json({ error: 'Name or number missing' });
+  //   return res.status(404).json({ error: "Person not found" });
+
+  next(error)
+}
+
+
+app.use(errorHandler)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

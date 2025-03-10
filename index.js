@@ -97,6 +97,26 @@ app.post('/api/persons', async (req, res, next) => {
   }
 });
 
+app.put("/api/persons/:id", (req, res, next) => { 
+  const { id } = req.params; 
+  const { number } = req.body; 
+
+  Person.findByIdAndUpdate(
+    id, 
+    { number }, 
+    { new: true, runValidators: true, context: "query" } // Ensure validation runs
+  )
+  .then((updatedPerson) => { 
+    if (updatedPerson) {
+      res.json(updatedPerson);
+    } else { 
+      res.status(404).end(); // Return 404 if the person is not found
+    }
+  })
+  .catch((error) => next(error)); // Pass errors to the error handler
+});
+
+
 app.delete("/api/persons/:id", async (req, res, next) => {
   try {
     const deletedPerson = await Person.findByIdAndDelete(req.params.id);

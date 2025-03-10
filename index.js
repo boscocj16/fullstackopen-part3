@@ -146,14 +146,12 @@ const errorHandler = (error, request, response, next) => {
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  }  res.status(400).json({ error: "Invalid ID format" });
-  // res.status(500).json({ error: 'Failed to save to database'
-  //   return res.status(400).json({ error: 'Name or number missing' });
-  //   return res.status(404).json({ error: "Person not found" });
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
 
   next(error)
 }
-
 
 app.use(errorHandler)
 

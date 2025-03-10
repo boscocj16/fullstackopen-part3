@@ -97,12 +97,20 @@ app.post('/api/persons', async (req, res) => {
   }
 });
 
-// // Deleting a single person
-// app.delete("/api/persons/:id", (req, res) => {
-//   const id = Number(req.params.id);
-//   let deletedPerson = persons.filter((person) => person.id !== id);
-//   res.send(deletedPerson);
-// });
+app.delete("/api/persons/:id", async (req, res) => {
+  try {
+    const deletedPerson = await Person.findByIdAndDelete(req.params.id);
+
+    if (!deletedPerson) {
+      return res.status(404).json({ error: "Person not found" });
+    }
+
+    res.status(204).end(); // No Content response
+  } catch (error) {
+    res.status(400).json({ error: "Invalid ID format" });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

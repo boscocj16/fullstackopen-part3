@@ -80,21 +80,22 @@ app.use(
 // };
 
 // // creating a new entry from the user
-// app.post("/api/persons", (req, res) => {
-//   const body = req.body;
-//   body.id = generatedId();
-//   if (!body.name || !body.number) {
-//     res.status(404).json({ error: "name or number is missing" });
-//   }
+app.post('/api/persons', async (req, res) => {
+  const { name, number } = req.body;
 
-//   const existingName = persons.find((person) => person.name === body.name);
-//   if (existingName) {
-//     res.status(400).json({ error: "name must be unique" });
-//   }
+  if (!name || !number) {
+    return res.status(400).json({ error: 'Name or number missing' });
+  }
 
-//   persons = persons.concat(body);
-//   res.status(201).send(persons);
-// });
+  const person = new Person({ name, number });
+  
+  try {
+    const savedPerson = await person.save();
+    res.status(201).json(savedPerson);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save to database' });
+  }
+});
 
 // // Deleting a single person
 // app.delete("/api/persons/:id", (req, res) => {

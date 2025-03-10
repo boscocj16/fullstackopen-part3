@@ -55,22 +55,32 @@ app.use(
   });
  });
 
-// // Getting person info
-// app.get("/info", (req, res) => {
-//   res.send(
-//     `Phonebook has info for ${persons.length} people. <br><br> ${Date()}`
-//   );
-// });
+// Getting person info
+// Info Route: Show total count & date
+app.get("/info", async (req, res) => {
+  try {
+    const count = await Person.countDocuments(); // Get count from MongoDB
+    res.send(`Phonebook has info for ${count} people. <br><br> ${new Date()}`);
+  } catch (error) {
+    res.status(500).json({ error: "Database error" });
+  }
+});
 
-// // Getting a single person
-// app.get("/api/persons/:id", (req, res) => {
-//   const id = Number(req.params.id);
-//   const person = persons.find((person) => person.id === id);
-//   if (!person) {
-//     res.status(404).send(`Person with id:${id} is NOT FOUND!`);
-//   }
-//   res.send(person);
-// });
+// Get a Single Person by ID
+app.get("/api/persons/:id", async (req, res, next) => {
+  try {
+    const person = await Person.findById(req.params.id);
+
+    if (!person) {
+      return res.status(404).send(`Person with id: ${req.params.id} NOT FOUND!`);
+    }
+
+    res.json(person);
+  } catch (error) {
+    next(error); // Passes errors to the middleware
+  }
+});
+
 
 // // function to generate a random value for each new entry
 // const generatedId = () => {
